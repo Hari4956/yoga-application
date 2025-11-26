@@ -19,6 +19,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   "https://yoga-application-4nyz.onrender.com",
+  "http://localhost:3000",
   "http://localhost:5173",
 ];
 
