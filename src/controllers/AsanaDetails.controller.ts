@@ -8,42 +8,78 @@ import {
   deleteAsanaService,
 } from "../services/AsanaDetailsService";
 
+const safeJSON = (value: any, fieldName: string) => {
+  if (!value) return [];
+
+  // If already parsed (not a string), return as is.
+  if (typeof value !== "string") return value;
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    console.log(`❌ JSON PARSE ERROR in field "${fieldName}":`, value);
+    return []; // fallback so API never crashes
+  }
+};
+
 export const createAsanaDetails = async (req: Request, res: Response) => {
   try {
     let mainImageUrl = "";
+    let variationPoseImagesUrls: string[] = [];
 
-    if (req.file) {
-      mainImageUrl = await uploadToCloudinary(req.file.path);
+    // console.log("REQ FILES:", req.files);
+    // console.log("REQ BODY:", req.body);
+
+    if (req.files && (req.files as any).mainImage) {
+      const file = (req.files as any).mainImage[0];
+      mainImageUrl = await uploadToCloudinary(file.path);
+    }
+
+    if (req.files && (req.files as any).images) {
+      const files = (req.files as any).images;
+      for (let file of files) {
+        console.log("Uploading variation image:", file.path); // ADD THIS
+        const url = await uploadToCloudinary(file.path);
+        console.log("Variation image uploaded:", url); // ADD THIS
+        variationPoseImagesUrls.push(url);
+      }
+    }
+
+    // USE SAFE PARSER
+    const variationPoses = safeJSON(req.body.variationPoses, "variationPoses");
+    const howToDo = safeJSON(req.body.howToDo, "howToDo");
+    const benefits = safeJSON(req.body.benefits, "benefits");
+    const precautions = safeJSON(req.body.precautions, "precautions");
+
+    // Attach uploaded images to variation poses
+    if (Array.isArray(variationPoses)) {
+      variationPoses.forEach((pose: any, index: number) => {
+        pose.image = variationPoseImagesUrls[index] || "";
+      });
     }
 
     const data = {
       ...req.body,
+      howToDo,
+      benefits,
+      precautions,
+      variationPoses,
       mainImage: mainImageUrl,
-      variationPoses: JSON.parse(req.body.variationPoses || "[]"),
-      benefits: JSON.parse(req.body.benefits || "[]"),
-      precautions: JSON.parse(req.body.precautions || "[]"),
     };
 
     const result = await createAsanaService(data);
 
-    // if already exists, return it instead of error
-    if (result.alreadyExists) {
-      return res.status(200).json({
-        success: true,
-        message: "Asana already exists",
-        // asana: result.asana,
-      });
-    }
-
-    // new asana created
     return res.status(201).json({
       success: true,
-      message: "Asana created successfully",
       asana: result.asana,
+      message: result.alreadyExists
+        ? "Asana already exists"
+        : "Asana created successfully",
     });
   } catch (error: any) {
     console.log("CREATE ASANA ERROR:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       success: false,
       message: "Error creating asana",
       error: error.message,
@@ -65,24 +101,65 @@ export const updateAsanaDetails = async (req: Request, res: Response) => {
   try {
     let mainImageUrl = req.body.mainImage;
 
-    if (req.file) {
-      mainImageUrl = await uploadToCloudinary(req.file.path);
+    // If new main image uploaded
+    if (req.files && (req.files as any).mainImage) {
+      const file = (req.files as any).mainImage[0];
+      mainImageUrl = await uploadToCloudinary(file.path);
+    }
+
+    // Variation images upload
+    let variationPoseImagesUrls: string[] = [];
+
+    if (req.files && (req.files as any).images) {
+      const files = (req.files as any).images;
+      for (let file of files) {
+        const url = await uploadToCloudinary(file.path);
+        variationPoseImagesUrls.push(url);
+      }
+    }
+
+    // Safe JSON parser
+    const safeJSON = (value: any) => {
+      try {
+        return JSON.parse(value || "[]");
+      } catch {
+        return [];
+      }
+    };
+
+    const variationPoses = safeJSON(req.body.variationPoses);
+    const benefits = safeJSON(req.body.benefits);
+    const precautions = safeJSON(req.body.precautions);
+    const howToDo = safeJSON(req.body.howToDo);
+
+    // Attach uploaded variation images
+    if (Array.isArray(variationPoses)) {
+      variationPoses.forEach((pose: any, index: number) => {
+        if (variationPoseImagesUrls[index]) {
+          pose.image = variationPoseImagesUrls[index];
+        }
+      });
     }
 
     const data = {
       ...req.body,
       mainImage: mainImageUrl,
-      variationPoses: JSON.parse(req.body.variationPoses || "[]"),
-      benefits: JSON.parse(req.body.benefits || "[]"),
-      precautions: JSON.parse(req.body.precautions || "[]"),
+      howToDo,
+      benefits,
+      precautions,
+      variationPoses,
     };
 
     const updated = await updateAsanaService(req.params.id, data);
+
     res.json({ success: true, updated });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Error updating asana", error });
+    console.log("UPDATE ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating asana",
+      error: (error as any).message || error,
+    });
   }
 };
 

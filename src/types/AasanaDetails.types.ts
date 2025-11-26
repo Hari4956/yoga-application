@@ -8,7 +8,7 @@ export interface IAsanaDetails {
   level: string;
   breath: string;
   chakra: string;
-  howToDo: string;
+  howToDo: string[];
   benefits: string[];
   precautions: string[];
   variationPoses: {
@@ -16,7 +16,7 @@ export interface IAsanaDetails {
     sanskrit: string;
     tamil: string;
     english: string;
-    image: string;
+    image: String;
     poseType: string;
     level: string;
   }[];

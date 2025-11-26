@@ -1,22 +1,17 @@
 import AasanaDetailsModel from "../models/AasanaDetailsModel";
 import { IAsanaDetails } from "../types/AasanaDetails.types";
 
-export const createAsanaService = async (data: IAsanaDetails) => {
-  const existingAsana = await AasanaDetailsModel.findOne({
+export const createAsanaService = async (data: any) => {
+  const existing = await AasanaDetailsModel.findOne({
     name: { $regex: new RegExp(`^${data.name}$`, "i") },
   });
 
-  if (existingAsana) {
-    return {
-      alreadyExists: true,
-      // asana: existingAsana,
-    };
+  if (existing) {
+    return { alreadyExists: true, asana: existing };
   }
+
   const newAsana = await AasanaDetailsModel.create(data);
-  return {
-    alreadyExists: false,
-    asana: newAsana,
-  };
+  return { alreadyExists: false, asana: newAsana };
 };
 
 export const getAllAsanasService = async () => {

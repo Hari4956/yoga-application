@@ -6,10 +6,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-console.log(" name", process.env.CLOUDINARY_NAME);
-console.log(" API key", process.env.CLOUDINARY_API_KEY);
-console.log(" API secretD", process.env.CLOUDINARY_API_SECRET);
-
 export const uploadToCloudinary = async (filePath: string) => {
   try {
     console.log("Uploading File:", filePath);

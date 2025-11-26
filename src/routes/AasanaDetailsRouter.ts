@@ -1,5 +1,5 @@
 import { Router } from "express";
-import upload from "../middleware/upload";
+import { asanaUpload } from "../middleware/upload";
 import {
   createAsanaDetails,
   deleteAsanaDetails,
@@ -10,10 +10,15 @@ import {
 
 const router = Router();
 
-router.post("/", upload.single("mainImage"), createAsanaDetails);
+router.post("/", asanaUpload, createAsanaDetails);
+
+// READ
 router.get("/", getAllAsanasDetails);
 router.get("/:id", getAsanaByIdDetails);
-router.put("/:id", upload.single("mainImage"), updateAsanaDetails);
+
+router.put("/:id", asanaUpload, updateAsanaDetails);
+
+// DELETE
 router.delete("/:id", deleteAsanaDetails);
 
 export default router;

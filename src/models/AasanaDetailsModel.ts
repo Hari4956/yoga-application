@@ -7,7 +7,7 @@ const variationPoseSchema = new mongoose.Schema(
     sanskrit: String,
     tamil: String,
     english: String,
-    image: String,
+    image: String, // ✔ FIXED
     poseType: String,
     level: String,
   },
@@ -25,7 +25,7 @@ const asanaDetailsSchema = new mongoose.Schema<IAsanaDetails>(
     level: { type: String, required: true },
     breath: { type: String, required: true },
     chakra: { type: String, required: true },
-    howToDo: { type: String, required: true },
+    howToDo: [String],
     benefits: [String],
     precautions: [String],
     variationPoses: [variationPoseSchema],
