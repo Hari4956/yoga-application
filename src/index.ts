@@ -11,16 +11,23 @@ import asanaDetailsRouter from "./routes/AasanaDetailsRouter";
 
 dotenv.config();
 const app = express();
-const PORT =  5001;
+const PORT = 5001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const allowedOrigins = [
+  "https://yoga-application-4nyz.onrender.com",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5137",
+    origin: allowedOrigins,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
