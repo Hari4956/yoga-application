@@ -24,4 +24,6 @@ export const asanaUpload = upload.fields([
   { name: "images", maxCount: 10 }, // must match req.files.images
 ]);
 
+export const variationUpload = upload.single("image");
+
 export default upload;

@@ -13,9 +13,9 @@ export const validateLoginInput = (email: string, password: string) => {
 /**
  * Generate JWT token
  */
-export const generateToken = (userId: string) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
-    expiresIn: "1d",
+export const generateToken = (id: string, role: string) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET!, {
+    expiresIn: "7d",
   });
 };
 
@@ -37,6 +37,7 @@ export const formatUserResponse = (user: any) => {
     id: user._id,
     name: user.name,
     email: user.email,
+    role: user.role,
     createdAt: user.createdAt,
   };
 };

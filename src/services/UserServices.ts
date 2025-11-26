@@ -19,6 +19,7 @@ export const userService = {
 
       const [users, total] = await Promise.all([
         UserModel.find()
+          .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)
           .select("-password")

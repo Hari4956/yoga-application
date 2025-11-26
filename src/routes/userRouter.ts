@@ -1,18 +1,17 @@
 import express from "express";
 import { userController } from "../controllers/user.Controller";
-import { UserJwt } from "../middleware/auth.middleware";
+import { AdminAuth } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
 router.post("/", userController.createUser);
 
-router.get("/", UserJwt, userController.getUsers);
+router.get("/", AdminAuth, userController.getUsers);
 
-router.get("/:id", UserJwt, userController.getUserById);
+router.get("/:id", AdminAuth, userController.getUserById);
 
-router.put("/:id", UserJwt, userController.updateUser);
+router.put("/:id", AdminAuth, userController.updateUser);
 
-router.delete("/:id", UserJwt, userController.deleteUser);
+router.delete("/:id", AdminAuth, userController.deleteUser);
 
 export default router;
-0;

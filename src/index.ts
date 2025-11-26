@@ -1,13 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
-import connectDB from "./config/MongodbConnect";
-import userRouter from "./routes/userRouter";
-import loginRouter from "./routes/loginRouter";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+import connectDB from "./config/MongodbConnect";
+import userRouter from "./routes/userRouter";
+import loginRouter from "./routes/loginRouter";
 import aasanaRouter from "./routes/aasanaRouter";
 import asanaDetailsRouter from "./routes/AasanaDetailsRouter";
+import UserVariationAasanaRouter from "./routes/UserVariationRouter";
 
 dotenv.config();
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", loginRouter);
 app.use("/api/aasanas_name", aasanaRouter);
 app.use("/api/asanadetails", asanaDetailsRouter);
+app.use("/api/uservariations", UserVariationAasanaRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

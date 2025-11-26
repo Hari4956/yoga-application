@@ -10,10 +10,8 @@ export const LoginController = {
 
       const user = await LoginService.login(email, password);
 
-      // Create JWT using util
-      const token = generateToken(user._id.toString());
+      const token = generateToken(user._id.toString(), user.role);
 
-      // Set cookie here
       res.cookie("token", token, {
         httpOnly: true,
         secure: false, // for localhost
