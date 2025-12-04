@@ -8,14 +8,16 @@ export const UserVariationService = {
   async createVariation(
     variationData: IAsanaVariation
   ): Promise<ICreateVariationResponse> {
+    // Check duplicate only within the same parentAsana
     const existingVariation = await UserVariationModel.findOne({
       title: { $regex: new RegExp(`^${variationData.title}$`, "i") },
+      parentAsana: variationData.parentAsana,
     });
 
     if (existingVariation) {
       return {
         alreadyExists: true,
-        message: "Variation created successfully",
+        message: "Variation already exists for this Asana",
         variation: existingVariation,
       };
     }
@@ -32,7 +34,6 @@ export const UserVariationService = {
       variation: saved,
     };
   },
-
   async getAllVariatons(): Promise<IAsanaVariation[]> {
     return await UserVariationModel.find().sort({ createdAt: -1 });
   },

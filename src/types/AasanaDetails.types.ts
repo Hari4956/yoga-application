@@ -21,3 +21,10 @@ export interface IAsanaDetails {
     level: string;
   }[];
 }
+
+export interface IAsanaGetAll {
+  _id: string;
+  name: string;
+  level: string;
+  poseType: string[];
+}

@@ -8,8 +8,13 @@ const userVariationSchema = new mongoose.Schema(
     tamil: { type: String, required: true },
     english: { type: String, required: true },
     image: { type: String, required: true },
-    poseType: { type: String, required: true },
+    poseType: { type: [String], required: true }, // <-- UPDATED
     level: { type: String, required: true },
+    parentAsana: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AsanaDetails",
+      required: true,
+    },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

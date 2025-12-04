@@ -9,10 +9,13 @@ import loginRouter from "./routes/loginRouter";
 import aasanaRouter from "./routes/aasanaRouter";
 import asanaDetailsRouter from "./routes/AasanaDetailsRouter";
 import UserVariationAasanaRouter from "./routes/UserVariationRouter";
+import MakeVariationRouter from "./routes/MakeVariationRouter";
+import AlternativeAsanaRouter from "./routes/AlternativeAsanaRouter";
+import UploadImgRouter from "./routes/UploadImgRouter";
 
 dotenv.config();
 const app = express();
-const PORT = 5000;
+const PORT = 5001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,7 +24,7 @@ app.use(cookieParser());
 const allowedOrigins = [
   "https://yoga-application-4nyz.onrender.com",
   "http://localhost:3000",
-  "http://localhost:5173",
+  "http://localhost:3001",
 ];
 
 app.use(
@@ -44,6 +47,10 @@ app.use("/api/auth", loginRouter);
 app.use("/api/aasanas_name", aasanaRouter);
 app.use("/api/asanadetails", asanaDetailsRouter);
 app.use("/api/uservariations", UserVariationAasanaRouter);
+app.use("/api/makevariations", MakeVariationRouter);
+app.use("/api/alternativeasana", AlternativeAsanaRouter);
+
+app.use("/api/upload", UploadImgRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

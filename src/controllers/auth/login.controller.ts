@@ -21,6 +21,7 @@ export const LoginController = {
       return res.json({
         success: true,
         message: "Login successful",
+        token,
         data: formatUserResponse(user),
       });
     } catch (error: any) {

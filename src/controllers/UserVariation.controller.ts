@@ -6,11 +6,32 @@ import { uploadToCloudinary } from "../services/cloudinary.service";
 export const UserVariationController = {
   async createVaration(req: Request, res: Response) {
     try {
+      const { parentAsana, poseType } = req.body;
+
+      // Validate parentAsana
+      if (!parentAsana) {
+        return res.status(400).json({
+          success: false,
+          message: "parentAsana is required",
+        });
+      }
+
+      // Parse poseType safely
+      let parsedPoseType: string[] = [];
+      if (Array.isArray(poseType)) {
+        parsedPoseType = poseType;
+      } else if (typeof poseType === "string" && poseType.length > 0) {
+        parsedPoseType = poseType.split(",").map((s) => s.trim());
+      }
+
+      // Upload image if exists
       const imageUrl = req.file ? await uploadToCloudinary(req.file.path) : "";
 
       const variationData: IAsanaVariation = {
         ...req.body,
+        poseType: parsedPoseType,
         image: imageUrl,
+        parentAsana,
       };
 
       const result = await UserVariationService.createVariation(variationData);
@@ -23,7 +44,6 @@ export const UserVariationController = {
       });
     }
   },
-
   async getVariation(req: Request, res: Response) {
     try {
       const result = await UserVariationService.getAllVariatons();

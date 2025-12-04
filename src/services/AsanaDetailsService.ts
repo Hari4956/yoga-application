@@ -1,5 +1,5 @@
 import AasanaDetailsModel from "../models/AasanaDetailsModel";
-import { IAsanaDetails } from "../types/AasanaDetails.types";
+import { IAsanaDetails, IAsanaGetAll } from "../types/AasanaDetails.types";
 
 export const createAsanaService = async (data: any) => {
   const existing = await AasanaDetailsModel.findOne({
@@ -14,8 +14,44 @@ export const createAsanaService = async (data: any) => {
   return { alreadyExists: false, asana: newAsana };
 };
 
-export const getAllAsanasService = async () => {
-  return await AasanaDetailsModel.find().sort({ createdAt: -1 });
+export const getAllAsanasService = async (filters: {
+  name: string;
+  level: string;
+  poseType: string;
+}): Promise<IAsanaGetAll[]> => {
+  const query: any = {};
+
+  // Name search (case-insensitive)
+  if (filters.name) {
+    query.name = { $regex: filters.name, $options: "i" };
+  }
+
+  // Level search (case-insensitive exact match)
+  if (filters.level) {
+    query.level = { $regex: `^${filters.level}$`, $options: "i" };
+  }
+
+  // PoseType search (case-insensitive)
+  if (filters.poseType) {
+    query.poseType = { $regex: filters.poseType, $options: "i" };
+  }
+
+  const asanas = await AasanaDetailsModel.find(query)
+    .sort({ createdAt: -1 })
+    .select("name level poseType")
+    .lean();
+
+  return asanas.map((asana) => ({
+    _id: asana._id.toString(),
+    name: asana.name,
+    level: asana.level,
+    poseType:
+      typeof asana.poseType === "string"
+        ? asana.poseType.split(",").map((t) => t.trim())
+        : Array.isArray(asana.poseType)
+        ? asana.poseType
+        : [],
+  }));
 };
 
 export const getAsanaByIdService = async (id: string) => {

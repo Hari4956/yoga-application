@@ -7,6 +7,7 @@ import {
   updateAsanaService,
   deleteAsanaService,
 } from "../services/AsanaDetailsService";
+import UserVariationModel from "../models/UserVariationModel";
 
 const safeJSON = (value: any, fieldName: string) => {
   if (!value) return [];
@@ -18,7 +19,7 @@ const safeJSON = (value: any, fieldName: string) => {
     return JSON.parse(value);
   } catch (error) {
     console.log(`❌ JSON PARSE ERROR in field "${fieldName}":`, value);
-    return []; // fallback so API never crashes
+    return []; // fallback so API never crashes on invalid JSON
   }
 };
 
@@ -26,6 +27,9 @@ export const createAsanaDetails = async (req: Request, res: Response) => {
   try {
     let mainImageUrl = "";
     let variationPoseImagesUrls: string[] = [];
+
+    console.log("CREATE REQ FILES:", req.files);
+    console.log("CREATE REQ BODY:", req.body);
 
     // console.log("REQ FILES:", req.files);
     // console.log("REQ BODY:", req.body);
@@ -87,14 +91,58 @@ export const createAsanaDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllAsanasDetails = async (_: Request, res: Response) => {
-  const asanas = await getAllAsanasService();
-  res.json({ success: true, asanas });
+export const getAllAsanasDetails = async (req: Request, res: Response) => {
+  try {
+    const { name = "", level = "", poseType = "" } = req.query;
+
+    const filters = {
+      name: name as string,
+      level: level as string,
+      poseType: poseType as string,
+    };
+
+    const asanas = await getAllAsanasService(filters);
+
+    res.json({ success: true, asanas });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching Asanas",
+      error: error.message,
+    });
+  }
 };
 
 export const getAsanaByIdDetails = async (req: Request, res: Response) => {
-  const asana = await getAsanaByIdService(req.params.id);
-  res.json({ success: true, asana });
+  try {
+    const asanaId = req.params.id;
+
+    // 1️⃣ Fetch asana details
+    const asana = await getAsanaByIdService(asanaId);
+
+    if (!asana) {
+      return res.status(404).json({
+        success: false,
+        message: "Asana not found",
+      });
+    }
+
+    const variations = await UserVariationModel.find({
+      parentAsana: asanaId,
+      status: "approved",
+    });
+
+    return res.json({
+      success: true,
+      asana,
+      variationPoses: variations,
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
 };
 
 export const updateAsanaDetails = async (req: Request, res: Response) => {

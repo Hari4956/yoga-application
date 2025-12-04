@@ -26,4 +26,8 @@ export const asanaUpload = upload.fields([
 
 export const variationUpload = upload.single("image");
 
+export const makeVariationUpload = upload.single("variationImage");
+
+export const uploadImage = upload.single("images");
+
 export default upload;
